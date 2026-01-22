@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-export type WidgetType = 'pomodoro' | 'tasks' | 'notes' | 'clock' | 'quote' | 'music' | 'breathing';
+export type WidgetType = 'pomodoro' | 'tasks' | 'notes' | 'clock' | 'quote' | 'music' | 'breathing' | 'media';
 
 export interface Widget {
     id: string;
@@ -10,43 +10,44 @@ export interface Widget {
     isVisible: boolean;
 }
 
-interface WidgetStore {
-    widgets: Widget[];
-    activePanel: 'scenes' | 'sounds' | 'widgets' | null;
-
-    toggleWidget: (type: WidgetType) => void;
-    updatePosition: (id: string, position: { x: number; y: number }) => void;
-    setActivePanel: (panel: WidgetStore['activePanel']) => void;
-}
-
-const defaultWidgets: Widget[] = [
-    { id: 'pomodoro-1', type: 'pomodoro', position: { x: 50, y: 100 }, isVisible: true },
-    { id: 'tasks-1', type: 'tasks', position: { x: 50, y: 350 }, isVisible: true },
-    { id: 'notes-1', type: 'notes', position: { x: 400, y: 100 }, isVisible: false },
-    { id: 'clock-1', type: 'clock', position: { x: 400, y: 300 }, isVisible: false },
-    { id: 'quote-1', type: 'quote', position: { x: 50, y: 500 }, isVisible: false },
+const initialWidgets: Widget[] = [
+    { id: 'pomodoro-1', type: 'pomodoro', position: { x: 50, y: 50 }, isVisible: true },
+    { id: 'tasks-1', type: 'tasks', position: { x: 400, y: 50 }, isVisible: true },
+    { id: 'notes-1', type: 'notes', position: { x: 50, y: 400 }, isVisible: false },
+    { id: 'clock-1', type: 'clock', position: { x: 400, y: 400 }, isVisible: false },
+    { id: 'quote-1', type: 'quote', position: { x: 50, y: 600 }, isVisible: true },
+    { id: 'music-1', type: 'music', position: { x: 400, y: 600 }, isVisible: true },
+    { id: 'breathing-1', type: 'breathing', position: { x: 800, y: 50 }, isVisible: false },
+    { id: 'media-1', type: 'media', position: { x: 800, y: 400 }, isVisible: false },
 ];
 
-export const useWidgetStore = create<WidgetStore>()(
+interface WidgetState {
+    widgets: Widget[];
+    toggleWidget: (type: WidgetType) => void;
+    updatePosition: (id: string, pos: { x: number; y: number }) => void;
+    resetWidgets: () => void;
+}
+
+export const useWidgetStore = create<WidgetState>()(
     persist(
         (set) => ({
-            widgets: defaultWidgets,
-            activePanel: null,
-
-            toggleWidget: (type) => set((state) => ({
-                widgets: state.widgets.map((w) =>
-                    w.type === type ? { ...w, isVisible: !w.isVisible } : w
-                ),
-            })),
-
-            updatePosition: (id, position) => set((state) => ({
-                widgets: state.widgets.map((w) =>
-                    w.id === id ? { ...w, position } : w
-                ),
-            })),
-
-            setActivePanel: (panel) => set({ activePanel: panel }),
+            widgets: initialWidgets,
+            toggleWidget: (type) =>
+                set((state) => ({
+                    widgets: state.widgets.map((w) =>
+                        w.type === type ? { ...w, isVisible: !w.isVisible } : w
+                    ),
+                })),
+            updatePosition: (id, pos) =>
+                set((state) => ({
+                    widgets: state.widgets.map((w) =>
+                        w.id === id ? { ...w, position: pos } : w
+                    ),
+                })),
+            resetWidgets: () => set({ widgets: initialWidgets }),
         }),
-        { name: 'lifeat-widgets' }
+        {
+            name: 'widget-storage',
+        }
     )
 );

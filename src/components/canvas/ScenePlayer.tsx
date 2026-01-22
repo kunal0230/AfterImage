@@ -19,7 +19,7 @@ interface SceneAsset {
 const SCENE_ASSETS: Record<SceneType, SceneAsset> = {
     // Calm scenes
     mountains: {
-        video: 'https://videos.pexels.com/video-files/857251/857251-hd_1920_1080_30fps.mp4',
+        video: 'https://videos.pexels.com/video-files/3195394/3195394-uhd_2560_1440_25fps.mp4',
         image: 'https://images.pexels.com/photos/1054218/pexels-photo-1054218.jpeg?auto=compress&w=1920',
         gradient: 'linear-gradient(135deg, #1a365d 0%, #2d3748 100%)',
     },

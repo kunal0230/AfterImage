@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { WidgetFrame } from '../layout/WidgetFrame';
 
 export function ClockWidget() {
     const [time, setTime] = useState(new Date());
@@ -25,13 +26,25 @@ export function ClockWidget() {
     };
 
     return (
-        <div className="bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl p-6 w-64 text-center">
-            <div className="text-4xl font-light text-gray-800 tabular-nums">
-                {formatTime(time)}
+        <WidgetFrame
+            id="clock-1"
+            type="clock"
+            title="Time"
+            className="w-64"
+            icon={
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            }
+        >
+            <div className="text-center py-2">
+                <div className="text-4xl font-light text-gray-800 tabular-nums tracking-tight">
+                    {formatTime(time)}
+                </div>
+                <div className="text-sm font-medium text-indigo-500 mt-2 uppercase tracking-wide">
+                    {formatDate(time)}
+                </div>
             </div>
-            <div className="text-sm text-gray-400 mt-2">
-                {formatDate(time)}
-            </div>
-        </div>
+        </WidgetFrame>
     );
 }

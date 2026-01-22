@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { WidgetFrame } from '../layout/WidgetFrame';
 
 export function NotesWidget() {
     const [notes, setNotes] = useState(() => {
@@ -13,20 +14,26 @@ export function NotesWidget() {
     };
 
     return (
-        <div className="bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl p-6 w-80">
-            <div className="flex items-center justify-between mb-4">
-                <h3 className="font-semibold text-gray-700">Notes</h3>
-                <span className="text-xs text-gray-400">
-                    {notes.length} chars
-                </span>
+        <WidgetFrame
+            id="notes-1"
+            type="notes"
+            title="Notepad"
+            className="w-80 h-72"
+            icon={
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
+            }
+        >
+            <div className="h-full -mx-2 -my-2">
+                <textarea
+                    value={notes}
+                    onChange={handleChange}
+                    placeholder="Jot down your thoughts..."
+                    className="w-full h-full p-4 bg-transparent border-none resize-none focus:ring-0 text-gray-700 text-sm leading-relaxed placeholder:text-gray-400/70"
+                    spellCheck={false}
+                />
             </div>
-
-            <textarea
-                value={notes}
-                onChange={handleChange}
-                placeholder="Write your thoughts..."
-                className="w-full h-48 p-3 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-700 resize-none focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent"
-            />
-        </div>
+        </WidgetFrame>
     );
 }
