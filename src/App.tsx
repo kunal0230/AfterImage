@@ -1,90 +1,97 @@
-import { Canvas } from '@react-three/fiber';
-import { Scene } from './components/canvas/Scene';
+import { useState } from 'react';
 import { ScenePlayer } from './components/canvas/ScenePlayer';
-import { TheOrb } from './components/ui/TheOrb';
-import { MoodSelector } from './components/ui/MoodSelector';
+import { Sidebar } from './components/layout/Sidebar';
+import { WidgetContainer } from './components/layout/WidgetContainer';
+import { BackgroundSelector } from './components/layout/BackgroundSelector';
 import { Airlock } from './components/ui/Airlock';
-import { MusicPlayer } from './components/audio/MusicPlayer';
 import { useMoodStore } from './store/useMoodStore';
 
 function App() {
   const isPlaying = useMoodStore((state) => state.isPlaying);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [bgSelectorOpen, setBgSelectorOpen] = useState(false);
 
   return (
-    <div className="relative w-full h-screen bg-gradient-to-br from-indigo-50 via-white to-cyan-50 overflow-hidden select-none font-sans">
-      {/* 1. Onboarding Layer (includes Survey) */}
+    <div className="relative w-full h-screen bg-gray-100 overflow-hidden select-none font-sans">
+      {/* 1. Onboarding */}
       <Airlock />
 
-      {/* 2. Scenic Background Layer (Video/Image) */}
-      <ScenePlayer />
-
-      {/* 3. Subtle Visual Overlay (R3F Shaders) */}
+      {/* Main Workspace (shown after onboarding) */}
       {isPlaying && (
-        <div className="absolute inset-0 z-5 pointer-events-none opacity-20">
-          <Canvas
-            dpr={[1, 2]}
-            gl={{
-              powerPreference: "high-performance",
-              antialias: false,
-              stencil: false,
-              depth: false
-            }}
-            camera={{ position: [0, 0, 5], fov: 75 }}
-          >
-            <Scene />
-          </Canvas>
-        </div>
-      )}
+        <>
+          {/* 2. Background Scene */}
+          <ScenePlayer />
 
-      {/* 4. Music Player */}
-      <MusicPlayer />
+          {/* 3. Sidebar Navigation */}
+          <Sidebar isOpen={sidebarOpen} onToggle={() => setSidebarOpen(!sidebarOpen)} />
 
-      {/* 5. The Interactive UI Layer */}
-      <div className="absolute inset-0 z-10 pointer-events-none">
-        <TheOrb />
-        <MoodSelector />
-      </div>
+          {/* 4. Draggable Widgets */}
+          <div className={`transition-all duration-300 ${sidebarOpen ? 'ml-64' : 'ml-16'}`}>
+            <WidgetContainer />
+          </div>
 
-      {/* 6. Header */}
-      <div className="absolute top-6 w-full text-center pointer-events-none z-20">
-        <h1 className="text-gray-400 text-xs tracking-[0.3em] uppercase font-medium">
-          Mood on Demand
-        </h1>
-      </div>
+          {/* 5. Background Selector Modal */}
+          <BackgroundSelector isOpen={bgSelectorOpen} onClose={() => setBgSelectorOpen(false)} />
 
-      {/* 7. Timer/Session Info (New Feature) */}
-      {isPlaying && (
-        <div className="absolute top-6 right-6 z-20 pointer-events-auto">
-          <SessionTimer />
-        </div>
+          {/* 6. Top Bar */}
+          <div className={`fixed top-0 right-0 left-0 z-30 transition-all duration-300 ${sidebarOpen ? 'ml-64' : 'ml-16'}`}>
+            <div className="flex items-center justify-between p-4">
+              {/* Left: Title */}
+              <div className="text-gray-800 font-medium">
+                <span className="text-xl">Virtual Workspace</span>
+              </div>
+
+              {/* Right: Controls */}
+              <div className="flex items-center gap-3">
+                {/* Change Background Button */}
+                <button
+                  onClick={() => setBgSelectorOpen(true)}
+                  className="flex items-center gap-2 px-4 py-2 bg-white/80 backdrop-blur-sm rounded-lg shadow-sm hover:bg-white transition-colors"
+                >
+                  <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  <span className="text-sm text-gray-700">Change Scene</span>
+                </button>
+
+                {/* Session Timer */}
+                <SessionTimer />
+              </div>
+            </div>
+          </div>
+        </>
       )}
     </div>
   );
 }
 
-// New Feature: Session Timer
+// Session Timer Component
 function SessionTimer() {
   const [seconds, setSeconds] = useState(0);
 
-  useEffect(() => {
-    const interval = setInterval(() => setSeconds(s => s + 1), 1000);
+  useState(() => {
+    const interval = setInterval(() => setSeconds((s) => s + 1), 1000);
     return () => clearInterval(interval);
-  }, []);
+  });
 
   const formatTime = (s: number) => {
-    const mins = Math.floor(s / 60);
+    const hrs = Math.floor(s / 3600);
+    const mins = Math.floor((s % 3600) / 60);
     const secs = s % 60;
+    if (hrs > 0) {
+      return `${hrs}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    }
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
   return (
-    <div className="glass rounded-xl px-4 py-2">
-      <div className="text-xs text-gray-400 mb-0.5">Session</div>
-      <div className="text-lg font-medium text-gray-700">{formatTime(seconds)}</div>
+    <div className="flex items-center gap-2 px-4 py-2 bg-white/80 backdrop-blur-sm rounded-lg shadow-sm">
+      <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+      <span className="text-sm text-gray-700 tabular-nums font-medium">{formatTime(seconds)}</span>
     </div>
   );
 }
-
-import { useState, useEffect } from 'react';
 
 export default App;
